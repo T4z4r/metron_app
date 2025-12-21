@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import 'otp_screen.dart';
-import 'register_screen.dart';
+import 'login_screen.dart';
 import '../../widgets/animations.dart';
 import '../../utils/constants.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _RegisterScreenState extends State<RegisterScreen>
     with TickerProviderStateMixin {
+  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -51,25 +51,29 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   void dispose() {
+    _nameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      await Provider.of<AuthProvider>(context, listen: false)
-          .login(_phoneController.text, _passwordController.text);
+      await Provider.of<AuthProvider>(context, listen: false).register(
+        _nameController.text,
+        _phoneController.text,
+        _passwordController.text,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Welcome back!'),
+            content: Text('Account created successfully!'),
             backgroundColor: Constants.successColor,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -99,55 +103,9 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  Future<void> _handleOtpLogin() async {
-    if (_phoneController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your phone number'),
-          backgroundColor: Constants.warningColor,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: Constants.borderRadiusM,
-          ),
-        ),
-      );
-      return;
-    }
-
-    try {
-      await Provider.of<AuthProvider>(context, listen: false)
-          .sendOtp(_phoneController.text);
-
-      if (mounted) {
-        Navigator.push(
-          context,
-          AppAnimations.slideRightRoute(
-            OtpScreen(phone: _phoneController.text),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_getErrorMessage(e)),
-            backgroundColor: Constants.errorColor,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: Constants.borderRadiusM,
-            ),
-          ),
-        );
-      }
-    }
-  }
-
   String _getErrorMessage(dynamic error) {
-    if (error.toString().contains('Login failed')) {
-      return 'Invalid phone number or password';
-    }
-    if (error.toString().contains('Failed to send OTP')) {
-      return 'Failed to send verification code';
+    if (error.toString().contains('Registration failed')) {
+      return 'Failed to create account. Please try again.';
     }
     return 'Something went wrong. Please try again.';
   }
@@ -206,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen>
           // App Logo with animation
           _buildAnimatedLogo(),
           SizedBox(height: Constants.spacingXL),
-          // Login Card
+          // Register Card
           _buildAuthCard(),
           SizedBox(height: Constants.spacingL),
           // Social Login Options
@@ -341,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Welcome Back',
+              'Create Account',
               style: Constants.headlineSmall.copyWith(
                 color: Constants.textColor,
                 fontWeight: FontWeight.bold,
@@ -350,33 +308,33 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             SizedBox(height: Constants.spacingM),
             Text(
-              'Sign in to your account',
+              'Join the Metron community',
               style: Constants.bodyMedium.copyWith(
                 color: Constants.textSecondaryColor,
               ),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: Constants.spacingXL),
-            _buildLoginForm(),
+            _buildRegisterForm(),
             SizedBox(height: Constants.spacingM),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Don\'t have an account? ',
+                  'Already have an account? ',
                   style: Constants.bodySmall.copyWith(
                     color: Constants.textSecondaryColor,
                   ),
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
-                      AppAnimations.slideRightRoute(const RegisterScreen()),
+                      AppAnimations.slideRightRoute(const LoginScreen()),
                     );
                   },
                   child: Text(
-                    'Sign Up',
+                    'Sign In',
                     style: Constants.labelMedium.copyWith(
                       color: Constants.primaryColor,
                       fontWeight: FontWeight.w600,
@@ -391,12 +349,29 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Widget _buildLoginForm() {
+  Widget _buildRegisterForm() {
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _buildTextField(
+            controller: _nameController,
+            label: 'Full Name',
+            hint: 'Enter your full name',
+            icon: Icons.person_outline,
+            textCapitalization: TextCapitalization.words,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Full name is required';
+              }
+              if (value.trim().length < 2) {
+                return 'Name must be at least 2 characters';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: Constants.spacingM),
           _buildTextField(
             controller: _phoneController,
             label: 'Phone Number',
@@ -417,7 +392,7 @@ class _LoginScreenState extends State<LoginScreen>
           _buildTextField(
             controller: _passwordController,
             label: 'Password',
-            hint: 'Enter your password',
+            hint: 'Create a strong password',
             icon: Icons.lock_outline,
             isPassword: true,
             obscureText: _obscurePassword,
@@ -436,15 +411,9 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           SizedBox(height: Constants.spacingXL),
           _buildPrimaryButton(
-            text: 'Sign In',
-            onPressed: _isLoading ? null : _handleLogin,
-            icon: Icons.login,
-          ),
-          SizedBox(height: Constants.spacingM),
-          _buildSecondaryButton(
-            text: 'Sign In with OTP',
-            onPressed: _handleOtpLogin,
-            icon: Icons.sms_outlined,
+            text: 'Create Account',
+            onPressed: _isLoading ? null : _handleRegister,
+            icon: Icons.person_add_alt,
           ),
         ],
       ),
@@ -507,7 +476,9 @@ class _LoginScreenState extends State<LoginScreen>
               suffixIcon: isPassword
                   ? IconButton(
                       icon: Icon(
-                        obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                        obscureText
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
                         color: Constants.textSecondaryColor,
                         size: 20,
                       ),
@@ -579,53 +550,6 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ],
                   ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSecondaryButton({
-    required String text,
-    required VoidCallback onPressed,
-    required IconData icon,
-  }) {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: Constants.borderRadiusL,
-        border: Border.all(
-          color: Constants.primaryColor.withValues(alpha: 0.4),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: Constants.borderRadiusL,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Constants.primaryColor, size: 20),
-                SizedBox(width: Constants.spacingS),
-                Text(
-                  text,
-                  style: Constants.labelLarge.copyWith(
-                    color: Constants.primaryColor,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

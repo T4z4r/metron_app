@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       title: 'Metron',
       theme: Constants.appTheme,
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: const LoginScreen(),
     );
   }
 }
