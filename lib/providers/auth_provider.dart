@@ -9,6 +9,37 @@ class AuthProvider extends ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
 
+  Future<void> register(String name, String phone, String password) async {
+    try {
+      final response = await _apiService.post('/auth/register', {
+        'name': name,
+        'phone': phone,
+        'password': password
+      });
+      final token = response['token'];
+      await _apiService.setToken(token);
+      _currentUser = User.fromJson(response['user']);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Registration failed');
+    }
+  }
+
+  Future<void> login(String phone, String password) async {
+    try {
+      final response = await _apiService.post('/auth/login', {
+        'phone': phone,
+        'password': password
+      });
+      final token = response['token'];
+      await _apiService.setToken(token);
+      _currentUser = User.fromJson(response['user']);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Login failed');
+    }
+  }
+
   Future<void> sendOtp(String phone) async {
     try {
       await _apiService.post('/auth/send-otp', {'phone': phone});
