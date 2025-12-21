@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:8000/api'; // Laravel backend URL
+  static const String baseUrl =
+      'http://localhost:8000/api'; // Laravel backend URL
   final _storage = FlutterSecureStorage();
 
   Future<String?> getToken() async {
@@ -20,8 +21,10 @@ class ApiService {
 
   Future<Map<String, dynamic>> get(String endpoint) async {
     final token = await getToken();
-    final headers = token != null ? {'Authorization': 'Bearer $token'} : {};
-    final response = await http.get(Uri.parse('$baseUrl$endpoint'), headers: headers);
+    final headers =
+        token != null ? {'Authorization': 'Bearer $token'} : <String, String>{};
+    final response =
+        await http.get(Uri.parse('$baseUrl$endpoint'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -29,7 +32,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> data) async {
     final token = await getToken();
     final headers = {'Content-Type': 'application/json'};
     if (token != null) headers['Authorization'] = 'Bearer $token';
