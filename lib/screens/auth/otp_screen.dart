@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 
 class OtpScreen extends StatefulWidget {
+  final String phone;
+
+  OtpScreen({required this.phone});
+
   @override
   _OtpScreenState createState() => _OtpScreenState();
 }
@@ -16,6 +22,7 @@ class _OtpScreenState extends State<OtpScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Text('OTP sent to ${widget.phone}'),
             TextField(
               controller: _otpController,
               decoration: InputDecoration(labelText: 'Enter OTP'),
@@ -23,9 +30,17 @@ class _OtpScreenState extends State<OtpScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Verify OTP logic
-                // Navigate to next screen
+              onPressed: () async {
+                try {
+                  await Provider.of<AuthProvider>(context, listen: false)
+                      .verifyOtp(widget.phone, _otpController.text);
+                  // Navigate to home screen
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('OTP verification failed')),
+                  );
+                }
               },
               child: Text('Verify'),
             ),

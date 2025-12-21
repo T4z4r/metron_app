@@ -9,33 +9,41 @@ class AuthProvider extends ChangeNotifier {
   User? get currentUser => _currentUser;
   bool get isAuthenticated => _currentUser != null;
 
-  Future<void> login(String email, String password) async {
+  Future<void> sendOtp(String phone) async {
     try {
-      final response = await _apiService.post('/login', {'email': email, 'password': password});
-      _currentUser = User.fromJson(response);
-      notifyListeners();
+      await _apiService.post('/auth/send-otp', {'phone': phone});
     } catch (e) {
-      throw Exception('Login failed');
+      throw Exception('Failed to send OTP');
     }
   }
 
-  Future<void> register(String name, String email, String password, String role) async {
+  Future<void> verifyOtp(String phone, String otp) async {
     try {
-      final response = await _apiService.post('/register', {
-        'name': name,
-        'email': email,
-        'password': password,
-        'role': role
-      });
-      _currentUser = User.fromJson(response);
+      final response = await _apiService.post('/auth/verify-otp', {'phone': phone, 'otp': otp});
+      final token = response['token'];
+      await _apiService.setToken(token);
+      // Fetch user profile
+      final userResponse = await _apiService.get('/me');
+      _currentUser = User.fromJson(userResponse);
       notifyListeners();
     } catch (e) {
-      throw Exception('Registration failed');
+      throw Exception('OTP verification failed');
     }
   }
 
-  void logout() {
+  Future<void> fetchProfile() async {
+    try {
+      final response = await _apiService.get('/me');
+      _currentUser = User.fromJson(response);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to fetch profile');
+    }
+  }
+
+  Future<void> logout() async {
     _currentUser = null;
+    await _apiService.removeToken();
     notifyListeners();
   }
 }

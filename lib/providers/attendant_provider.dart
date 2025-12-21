@@ -10,9 +10,9 @@ class AttendantProvider extends ChangeNotifier {
 
   Future<void> fetchTickets() async {
     try {
-      final data = await _apiService.get('/tickets');
-      _tickets =
-          (data['tickets'] as List).map((t) => Ticket.fromJson(t)).toList();
+      // Assuming tickets are fetched from user profile or separate endpoint
+      // For now, placeholder
+      _tickets = [];
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch tickets');
@@ -21,8 +21,8 @@ class AttendantProvider extends ChangeNotifier {
 
   Future<void> purchaseTicket(int eventId) async {
     try {
-      final data = await _apiService.post('/tickets', {'event_id': eventId});
-      final newTicket = Ticket.fromJson(data);
+      final data = await _apiService.post('/tickets/purchase', {'event_id': eventId});
+      final newTicket = Ticket.fromJson(data['data']);
       _tickets.add(newTicket);
       notifyListeners();
     } catch (e) {

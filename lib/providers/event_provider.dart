@@ -11,7 +11,7 @@ class EventProvider extends ChangeNotifier {
   Future<void> fetchEvents() async {
     try {
       final data = await _apiService.get('/events');
-      _events = (data['events'] as List).map((e) => Event.fromJson(e)).toList();
+      _events = (data['data'] as List).map((e) => Event.fromJson(e)).toList();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch events');
@@ -20,14 +20,14 @@ class EventProvider extends ChangeNotifier {
 
   Future<void> createEvent(Event event) async {
     try {
-      final data = await _apiService.post('/events', {
+      final data = await _apiService.post('/organizer/events', {
         'title': event.title,
         'description': event.description,
         'visibility': event.visibility,
         'start_date': event.startDate.toIso8601String(),
         'end_date': event.endDate.toIso8601String(),
       });
-      final newEvent = Event.fromJson(data);
+      final newEvent = Event.fromJson(data['data']);
       _events.add(newEvent);
       notifyListeners();
     } catch (e) {

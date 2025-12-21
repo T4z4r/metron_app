@@ -10,8 +10,8 @@ class ServiceProvider extends ChangeNotifier {
 
   Future<void> fetchServices() async {
     try {
-      final data = await _apiService.get('/services');
-      _services = (data['services'] as List).map((s) => Service.fromJson(s)).toList();
+      final data = await _apiService.get('/provider/services');
+      _services = (data['data'] as List).map((s) => Service.fromJson(s)).toList();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch services');
@@ -20,8 +20,8 @@ class ServiceProvider extends ChangeNotifier {
 
   Future<void> createService(Service service) async {
     try {
-      final data = await _apiService.post('/services', service.toJson());
-      final newService = Service.fromJson(data);
+      final data = await _apiService.post('/provider/services', service.toJson());
+      final newService = Service.fromJson(data['data']);
       _services.add(newService);
       notifyListeners();
     } catch (e) {

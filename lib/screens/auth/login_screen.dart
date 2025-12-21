@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'otp_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,8 +9,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +20,29 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+              keyboardType: TextInputType.phone,
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 try {
                   await Provider.of<AuthProvider>(context, listen: false)
-                      .login(_emailController.text, _passwordController.text);
-                  // Navigate to home or next screen
+                      .sendOtp(_phoneController.text);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OtpScreen(phone: _phoneController.text),
+                    ),
+                  );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Login failed')),
+                    SnackBar(content: Text('Failed to send OTP')),
                   );
                 }
               },
-              child: Text('Login'),
+              child: Text('Send OTP'),
             ),
           ],
         ),

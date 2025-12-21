@@ -10,8 +10,8 @@ class VenueProvider extends ChangeNotifier {
 
   Future<void> fetchVenues() async {
     try {
-      final data = await _apiService.get('/venues');
-      _venues = (data['venues'] as List).map((v) => Venue.fromJson(v)).toList();
+      final data = await _apiService.get('/venue-owner/venues');
+      _venues = (data['data'] as List).map((v) => Venue.fromJson(v)).toList();
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch venues');
@@ -20,8 +20,9 @@ class VenueProvider extends ChangeNotifier {
 
   Future<void> createVenue(Venue venue) async {
     try {
-      final data = await _apiService.post('/venues', venue.toJson());
-      final newVenue = Venue.fromJson(data);
+      final data =
+          await _apiService.post('/venue-owner/venues', venue.toJson());
+      final newVenue = Venue.fromJson(data['data']);
       _venues.add(newVenue);
       notifyListeners();
     } catch (e) {
