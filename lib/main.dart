@@ -6,6 +6,7 @@ import 'providers/venue_provider.dart';
 import 'providers/service_provider.dart';
 import 'providers/attendant_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'utils/constants.dart';
 
 void main() {
   runApp(
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Metron',
-      theme: ThemeData(primarySwatch: Colors.red),
+      theme: Constants.appTheme,
       debugShowCheckedModeBanner: false,
       home: LoginScreen(),
     );
