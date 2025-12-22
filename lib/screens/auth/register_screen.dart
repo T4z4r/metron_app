@@ -20,6 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  String _selectedRole = 'attendant'; // Default role
+  final List<String> _roles = ['attendant', 'organizer', 'venue_owner', 'service_provider'];
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -68,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen>
         _nameController.text,
         _phoneController.text,
         _passwordController.text,
+        _selectedRole,
       );
 
       if (mounted) {
@@ -389,6 +392,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             },
           ),
           SizedBox(height: Constants.spacingM),
+          _buildRoleSelector(),
+          SizedBox(height: Constants.spacingM),
           _buildTextField(
             controller: _passwordController,
             label: 'Password',
@@ -418,6 +423,82 @@ class _RegisterScreenState extends State<RegisterScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildRoleSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'I am a...',
+          style: Constants.labelMedium,
+        ),
+        SizedBox(height: Constants.spacingS),
+        Container(
+          decoration: BoxDecoration(
+            color: Constants.backgroundColor,
+            borderRadius: Constants.borderRadiusL,
+            border: Border.all(
+              color: Constants.borderColor,
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: DropdownButtonFormField<String>(
+            value: _selectedRole,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(
+                Icons.work_outline,
+                color: Constants.primaryColor,
+                size: 20,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: Constants.spacingM,
+                vertical: Constants.spacingM,
+              ),
+            ),
+            items: _roles.map((String role) {
+              return DropdownMenuItem<String>(
+                value: role,
+                child: Text(
+                  _getRoleDisplayName(role),
+                  style: Constants.bodyLarge,
+                ),
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() {
+                  _selectedRole = newValue;
+                });
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getRoleDisplayName(String role) {
+    switch (role) {
+      case 'attendant':
+        return 'Event Attendant';
+      case 'organizer':
+        return 'Event Organizer';
+      case 'venue_owner':
+        return 'Venue Owner';
+      case 'service_provider':
+        return 'Service Provider';
+      default:
+        return role;
+    }
   }
 
   Widget _buildTextField({

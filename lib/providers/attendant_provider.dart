@@ -19,14 +19,24 @@ class AttendantProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> purchaseTicket(int eventId) async {
+  Future<void> purchaseTicket(String ticketId) async {
     try {
-      final data = await _apiService.post('/tickets/purchase', {'event_id': eventId});
+      final data = await _apiService.post('/tickets/purchase', {'ticket_id': ticketId});
       final newTicket = Ticket.fromJson(data['data']);
       _tickets.add(newTicket);
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to purchase ticket');
+    }
+  }
+
+  Future<bool> validateQR(String qrCode) async {
+    try {
+      final data = await _apiService.post('/tickets/validate-qr', {'qr': qrCode});
+      // Return validation result from API
+      return data['valid'] ?? false;
+    } catch (e) {
+      throw Exception('Failed to validate QR code');
     }
   }
 

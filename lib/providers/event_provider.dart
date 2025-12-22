@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../models/event.dart';
 import '../services/api_service.dart';
 
@@ -32,6 +33,30 @@ class EventProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to create event');
+    }
+  }
+
+  Future<void> publishEvent(int eventId) async {
+    try {
+      await _apiService.post('/organizer/events/$eventId/publish', {});
+      // Update the event in the list
+      final index = _events.indexWhere((event) => event.id == eventId);
+      if (index != -1) {
+        // You might want to fetch the updated event or update locally
+        notifyListeners();
+      }
+    } catch (e) {
+      throw Exception('Failed to publish event');
+    }
+  }
+
+  Future<void> uploadEventPhotos(
+      int eventId, List<http.MultipartFile> files) async {
+    try {
+      await _apiService.uploadFiles('/organizer/events/$eventId/photos', files);
+      // You might want to refresh the event data to get updated photo URLs
+    } catch (e) {
+      throw Exception('Failed to upload event photos');
     }
   }
 
