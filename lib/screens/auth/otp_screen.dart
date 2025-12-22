@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/navigation_helper.dart';
 
 class OtpScreen extends StatefulWidget {
   final String phone;
@@ -32,10 +33,18 @@ class _OtpScreenState extends State<OtpScreen> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  await Provider.of<AuthProvider>(context, listen: false)
-                      .verifyOtp(widget.phone, _otpController.text);
-                  // Navigate to home screen
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  await authProvider.verifyOtp(widget.phone, _otpController.text);
+                  
+                  if (mounted && authProvider.currentUser != null) {
+                    // Show success message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Phone verified successfully!')),
+                    );
+                    
+                    // Navigate to appropriate screen based on user role
+                    NavigationHelper.navigateToMainScreen(context, authProvider.currentUser!);
+                  }
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('OTP verification failed')),

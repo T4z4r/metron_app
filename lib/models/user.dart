@@ -22,17 +22,16 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    print('Parsing user JSON: $json'); // Debug print
     return User(
       id: json['id'],
       name: json['name'],
       email: json['email'] ?? '', // Make email optional as it's not in Postman
       emailVerifiedAt: json['email_verified_at'],
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : null,
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
           : null,
       phone: json['phone'],
       role: json['role'] ?? 'attendant', // Default role

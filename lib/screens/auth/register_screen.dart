@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
 import '../../widgets/animations.dart';
 import '../../utils/constants.dart';
+import '../../utils/navigation_helper.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -21,7 +22,12 @@ class _RegisterScreenState extends State<RegisterScreen>
   bool _isLoading = false;
   bool _obscurePassword = true;
   String _selectedRole = 'attendant'; // Default role
-  final List<String> _roles = ['attendant', 'organizer', 'venue_owner', 'service_provider'];
+  final List<String> _roles = [
+    'attendant',
+    'organizer',
+    'venue_owner',
+    'service_provider'
+  ];
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -66,17 +72,19 @@ class _RegisterScreenState extends State<RegisterScreen>
     setState(() => _isLoading = true);
 
     try {
-      await Provider.of<AuthProvider>(context, listen: false).register(
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.register(
         _nameController.text,
         _phoneController.text,
         _passwordController.text,
         _selectedRole,
       );
 
-      if (mounted) {
+      if (mounted && authProvider.currentUser != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account created successfully!'),
+          SnackBar(
+            content: Text(
+                'Account created successfully! Welcome ${authProvider.currentUser!.name}!'),
             backgroundColor: Constants.successColor,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -84,7 +92,10 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
           ),
         );
-        Navigator.of(context).pop();
+
+        // Navigate to appropriate screen based on user role
+        NavigationHelper.navigateToMainScreen(
+            context, authProvider.currentUser!);
       }
     } catch (e) {
       if (mounted) {

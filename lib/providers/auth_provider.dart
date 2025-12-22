@@ -13,7 +13,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiService.post('/auth/register',
           {'name': name, 'phone': phone, 'password': password, 'role': role});
-      print('Register response: $response'); // Debug print
       final token = response['token'];
       await _apiService.setToken(token);
       
@@ -29,7 +28,6 @@ class AuthProvider extends ChangeNotifier {
       _currentUser = User.fromJson(userData);
       notifyListeners();
     } catch (e) {
-      print(e);
       throw Exception('Registration failed: $e');
     }
   }
@@ -38,7 +36,6 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiService
           .post('/auth/login', {'phone': phone, 'password': password});
-      print('Login response: $response'); // Debug print
       final token = response['token'];
       await _apiService.setToken(token);
       
@@ -54,7 +51,6 @@ class AuthProvider extends ChangeNotifier {
       _currentUser = User.fromJson(userData);
       notifyListeners();
     } catch (e) {
-      print('Login error: $e'); // Debug print
       throw Exception('Login failed: $e');
     }
   }

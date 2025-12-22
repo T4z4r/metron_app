@@ -5,6 +5,7 @@ import 'otp_screen.dart';
 import 'register_screen.dart';
 import '../../widgets/animations.dart';
 import '../../utils/constants.dart';
+import '../../utils/navigation_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -63,13 +64,14 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      await Provider.of<AuthProvider>(context, listen: false)
-          .login(_phoneController.text, _passwordController.text);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.login(_phoneController.text, _passwordController.text);
 
-      if (mounted) {
+      if (mounted && authProvider.currentUser != null) {
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Welcome back!'),
+          SnackBar(
+            content: Text('Welcome back, ${authProvider.currentUser!.name}!'),
             backgroundColor: Constants.successColor,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -77,7 +79,9 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
         );
-        Navigator.of(context).pop();
+        
+        // Navigate to appropriate screen based on user role
+        NavigationHelper.navigateToMainScreen(context, authProvider.currentUser!);
       }
     } catch (e) {
       if (mounted) {
