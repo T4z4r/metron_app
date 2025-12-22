@@ -4,6 +4,7 @@ import '../../widgets/common_card.dart';
 import '../../widgets/common_widget';
 import '../../widgets/common_layout.dart';
 import '../../utils/constants.dart';
+import 'create_service.dart';
 
 class ServiceList extends StatefulWidget {
   @override
@@ -340,7 +341,10 @@ class _ServiceListState extends State<ServiceList> {
   }
 
   void _navigateToCreateService() {
-    Navigator.pushNamed(context, '/create-service');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CreateService()),
+    );
   }
 
   void _viewServiceDetails(Map<String, dynamic> service) {

@@ -4,6 +4,7 @@ import '../../widgets/common_card.dart';
 import '../../widgets/common_widget';
 import '../../widgets/common_layout.dart';
 import '../../utils/constants.dart';
+import 'create_venue.dart';
 
 class VenueList extends StatefulWidget {
   @override
@@ -11,6 +12,74 @@ class VenueList extends StatefulWidget {
 }
 
 class _VenueListState extends State<VenueList> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+    switch (_selectedIndex) {
+      case 0:
+        body = VenueListContent();
+        break;
+      case 1:
+        body = _buildBookingsScreen();
+        break;
+      case 2:
+        body = _buildProfileScreen();
+        break;
+      default:
+        body = VenueListContent();
+    }
+
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Venues',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Bookings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Constants.primaryColor,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildBookingsScreen() {
+    return Center(
+      child: Text('Bookings Screen - Coming Soon'),
+    );
+  }
+
+  Widget _buildProfileScreen() {
+    return Center(
+      child: Text('Profile Screen - Coming Soon'),
+    );
+  }
+}
+
+class VenueListContent extends StatefulWidget {
+  @override
+  _VenueListContentState createState() => _VenueListContentState();
+}
+
+class _VenueListContentState extends State<VenueListContent> {
   String _searchQuery = '';
 
   @override
@@ -107,12 +176,10 @@ class _VenueListState extends State<VenueList> {
             style: Constants.titleMedium,
           ),
           SizedBox(height: Constants.spacingM),
-          ...venues.map((venue) => 
-            Padding(
-              padding: EdgeInsets.only(bottom: Constants.spacingM),
-              child: _buildVenueCard(venue),
-            )
-          ),
+          ...venues.map((venue) => Padding(
+                padding: EdgeInsets.only(bottom: Constants.spacingM),
+                child: _buildVenueCard(venue),
+              )),
         ],
       ),
     );
@@ -176,7 +243,7 @@ class _VenueListState extends State<VenueList> {
                             vertical: Constants.spacingXS,
                           ),
                           decoration: BoxDecoration(
-                            color: venue['status'] == 'available' 
+                            color: venue['status'] == 'available'
                                 ? Constants.successColor.withOpacity(0.1)
                                 : Constants.warningColor.withOpacity(0.1),
                             borderRadius: Constants.borderRadiusS,
@@ -184,8 +251,8 @@ class _VenueListState extends State<VenueList> {
                           child: Text(
                             venue['status'].toString().toUpperCase(),
                             style: Constants.labelSmall.copyWith(
-                              color: venue['status'] == 'available' 
-                                  ? Constants.successColor 
+                              color: venue['status'] == 'available'
+                                  ? Constants.successColor
                                   : Constants.warningColor,
                               fontWeight: FontWeight.w600,
                             ),
@@ -201,7 +268,8 @@ class _VenueListState extends State<VenueList> {
                 onSelected: (value) => _handleVenueAction(value, venue),
                 itemBuilder: (context) => [
                   PopupMenuItem(value: 'edit', child: Text('Edit')),
-                  PopupMenuItem(value: 'manage', child: Text('Manage Bookings')),
+                  PopupMenuItem(
+                      value: 'manage', child: Text('Manage Bookings')),
                   PopupMenuItem(value: 'delete', child: Text('Delete')),
                 ],
               ),
@@ -236,7 +304,10 @@ class _VenueListState extends State<VenueList> {
   }
 
   void _navigateToCreateVenue() {
-    Navigator.pushNamed(context, '/create-venue');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CreateVenue()),
+    );
   }
 
   void _handleVenueAction(String action, Map<String, dynamic> venue) {

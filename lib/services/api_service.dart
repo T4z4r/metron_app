@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/constants.dart';
 
 class ApiService {
-  static const String baseUrl =
-      'https://metron.sudsudgroup.com/api'; // Laravel backend URL
   final _storage = FlutterSecureStorage();
 
   Future<String?> getToken() async {
@@ -23,8 +22,8 @@ class ApiService {
     final token = await getToken();
     final headers =
         token != null ? {'Authorization': 'Bearer $token'} : <String, String>{};
-    final response =
-        await http.get(Uri.parse('$baseUrl$endpoint'), headers: headers);
+    final response = await http
+        .get(Uri.parse('${Constants.apiBaseUrl}$endpoint'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {
@@ -38,7 +37,7 @@ class ApiService {
     final headers = {'Content-Type': 'application/json'};
     if (token != null) headers['Authorization'] = 'Bearer $token';
     final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse('${Constants.apiBaseUrl}$endpoint'),
       headers: headers,
       body: json.encode(data),
     );
@@ -55,7 +54,7 @@ class ApiService {
     final headers = {'Content-Type': 'application/json'};
     if (token != null) headers['Authorization'] = 'Bearer $token';
     final response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse('${Constants.apiBaseUrl}$endpoint'),
       headers: headers,
       body: json.encode(data),
     );
@@ -71,7 +70,7 @@ class ApiService {
     final headers = <String, String>{};
     if (token != null) headers['Authorization'] = 'Bearer $token';
     final response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse('${Constants.apiBaseUrl}$endpoint'),
       headers: headers,
     );
     if (response.statusCode == 200 || response.statusCode == 204) {
@@ -85,8 +84,8 @@ class ApiService {
   Future<Map<String, dynamic>> uploadFiles(
       String endpoint, List<http.MultipartFile> files) async {
     final token = await getToken();
-    final request =
-        http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
+    final request = http.MultipartRequest(
+        'POST', Uri.parse('${Constants.apiBaseUrl}$endpoint'));
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }

@@ -6,6 +6,7 @@ import '../../widgets/common_card.dart';
 import '../../widgets/common_widget';
 import '../../widgets/common_layout.dart';
 import '../../utils/constants.dart';
+import 'create_event.dart';
 
 class EventList extends StatefulWidget {
   @override
@@ -16,7 +17,188 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = '';
   String _selectedFilter = 'All';
-  final List<String> _filters = ['All', 'Upcoming', 'Past', 'Public', 'Private'];
+  int _selectedIndex = 0;
+  final List<String> _filters = [
+    'All',
+    'Upcoming',
+    'Past',
+    'Public',
+    'Private'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+    switch (_selectedIndex) {
+      case 0:
+        body = EventListContent(tabController: _tabController);
+        break;
+      case 1:
+        body = _buildAnalyticsScreen();
+        break;
+      case 2:
+        body = _buildProfileScreen();
+        break;
+      default:
+        body = EventListContent(tabController: _tabController);
+    }
+
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.analytics),
+            label: 'Analytics',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Constants.primaryColor,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildAnalyticsScreen() {
+    return Padding(
+      padding: EdgeInsets.all(Constants.spacingM),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Event Analytics',
+            style: Constants.titleLarge,
+          ),
+          SizedBox(height: Constants.spacingL),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'Total Events',
+                  '12',
+                  Icons.event_note,
+                  Constants.primaryColor,
+                ),
+              ),
+              SizedBox(width: Constants.spacingM),
+              Expanded(
+                child: _buildStatCard(
+                  'Live Events',
+                  '2',
+                  Icons.radio_button_on,
+                  Constants.successColor,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: Constants.spacingM),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  'Upcoming',
+                  '8',
+                  Icons.schedule,
+                  Constants.infoColor,
+                ),
+              ),
+              SizedBox(width: Constants.spacingM),
+              Expanded(
+                child: _buildStatCard(
+                  'Past Events',
+                  '2',
+                  Icons.history,
+                  Constants.textMutedColor,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
+    return CommonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: Constants.bodyMedium,
+              ),
+              Icon(icon, color: color),
+            ],
+          ),
+          SizedBox(height: Constants.spacingS),
+          Text(
+            value,
+            style: Constants.headlineMedium.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileScreen() {
+    return Center(
+      child: Text('Profile Screen - Coming Soon'),
+    );
+  }
+}
+
+class EventListContent extends StatefulWidget {
+  final TabController tabController;
+
+  const EventListContent({Key? key, required this.tabController})
+      : super(key: key);
+
+  @override
+  _EventListContentState createState() => _EventListContentState();
+}
+
+class _EventListContentState extends State<EventListContent>
+    with TickerProviderStateMixin {
+  late TabController _tabController;
+  String _searchQuery = '';
+  String _selectedFilter = 'All';
+  final List<String> _filters = [
+    'All',
+    'Upcoming',
+    'Past',
+    'Public',
+    'Private'
+  ];
 
   @override
   void initState() {
@@ -147,7 +329,7 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
         itemBuilder: (context, index) {
           final filter = _filters[index];
           final isSelected = filter == _selectedFilter;
-          
+
           return GestureDetector(
             onTap: () {
               setState(() {
@@ -161,10 +343,14 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
                 vertical: Constants.spacingS,
               ),
               decoration: BoxDecoration(
-                color: isSelected ? Constants.primaryColor : Constants.surfaceColor,
+                color: isSelected
+                    ? Constants.primaryColor
+                    : Constants.surfaceColor,
                 borderRadius: Constants.borderRadiusL,
                 border: Border.all(
-                  color: isSelected ? Constants.primaryColor : Constants.borderColor,
+                  color: isSelected
+                      ? Constants.primaryColor
+                      : Constants.borderColor,
                 ),
               ),
               child: Center(
@@ -172,7 +358,8 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
                   filter,
                   style: TextStyle(
                     color: isSelected ? Colors.white : Constants.textColor,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
                   ),
                 ),
               ),
@@ -239,7 +426,9 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
         List<Event> filteredEvents = eventProvider.events.where((event) {
           bool matchesSearch = _searchQuery.isEmpty ||
               event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              event.description.toLowerCase().contains(_searchQuery.toLowerCase());
+              event.description
+                  .toLowerCase()
+                  .contains(_searchQuery.toLowerCase());
 
           bool matchesFilter = true;
           if (_selectedFilter == 'Public') {
@@ -330,7 +519,8 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
                     vertical: Constants.spacingXS,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(isUpcoming, isPast, isLive).withOpacity(0.1),
+                    color: _getStatusColor(isUpcoming, isPast, isLive)
+                        .withOpacity(0.1),
                     borderRadius: Constants.borderRadiusS,
                   ),
                   child: Text(
@@ -401,7 +591,8 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
                           ),
                           SizedBox(width: Constants.spacingXS),
                           Text(
-                            _formatEventDateTime(event.startDate, event.endDate),
+                            _formatEventDateTime(
+                                event.startDate, event.endDate),
                             style: Constants.bodySmall,
                           ),
                           SizedBox(width: Constants.spacingM),
@@ -410,14 +601,18 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
                             height: 8,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: event.visibility == 'public' ? Constants.successColor : Constants.warningColor,
+                              color: event.visibility == 'public'
+                                  ? Constants.successColor
+                                  : Constants.warningColor,
                             ),
                           ),
                           SizedBox(width: Constants.spacingXS),
                           Text(
                             event.visibility.toUpperCase(),
                             style: Constants.bodySmall.copyWith(
-                              color: event.visibility == 'public' ? Constants.successColor : Constants.warningColor,
+                              color: event.visibility == 'public'
+                                  ? Constants.successColor
+                                  : Constants.warningColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -460,8 +655,12 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
 
   String _formatEventDateTime(DateTime start, DateTime end) {
     final now = DateTime.now();
-    final isToday = start.year == now.year && start.month == now.month && start.day == now.day;
-    final isTomorrow = start.year == now.year && start.month == now.month && start.day == now.day + 1;
+    final isToday = start.year == now.year &&
+        start.month == now.month &&
+        start.day == now.day;
+    final isTomorrow = start.year == now.year &&
+        start.month == now.month &&
+        start.day == now.day + 1;
 
     if (isToday) {
       return 'Today ${TimeOfDay.fromDateTime(start).format(context)}';
@@ -545,7 +744,8 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return CommonCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,7 +771,10 @@ class _EventListState extends State<EventList> with TickerProviderStateMixin {
   }
 
   void _navigateToCreateEvent() {
-    Navigator.pushNamed(context, '/create-event');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => CreateEvent()),
+    );
   }
 
   void _viewEventDetails(Event event) {

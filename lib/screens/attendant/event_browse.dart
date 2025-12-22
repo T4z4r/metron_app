@@ -6,6 +6,8 @@ import '../../widgets/common_card.dart';
 import '../../widgets/common_widget';
 import '../../widgets/common_layout.dart';
 import '../../utils/constants.dart';
+import '../../screens/organizer/create_event.dart';
+import '../../screens/attendant/ticket_screen.dart';
 
 class EventBrowse extends StatefulWidget {
   @override
@@ -13,6 +15,78 @@ class EventBrowse extends StatefulWidget {
 }
 
 class _EventBrowseState extends State<EventBrowse> {
+  String _searchQuery = '';
+  String _selectedFilter = 'All';
+  int _selectedIndex = 0;
+  final List<String> _filters = [
+    'All',
+    'Today',
+    'This Week',
+    'This Month',
+    'Public',
+    'Private'
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget body;
+    switch (_selectedIndex) {
+      case 0:
+        body = EventBrowseContent();
+        break;
+      case 1:
+        body = TicketScreen();
+        break;
+      case 2:
+        body = _buildProfileScreen();
+        break;
+      default:
+        body = EventBrowseContent();
+    }
+
+    return Scaffold(
+      body: body,
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.confirmation_number),
+            label: 'Tickets',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Constants.primaryColor,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+
+  Widget _buildProfileScreen() {
+    return Center(
+      child: Text('Profile Screen - Coming Soon'),
+    );
+  }
+}
+
+class EventBrowseContent extends StatefulWidget {
+  @override
+  _EventBrowseContentState createState() => _EventBrowseContentState();
+}
+
+class _EventBrowseContentState extends State<EventBrowseContent> {
   String _searchQuery = '';
   String _selectedFilter = 'All';
   final List<String> _filters = [
@@ -26,20 +100,18 @@ class _EventBrowseState extends State<EventBrowse> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildSliverAppBar(),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                _buildFilters(),
-                _buildEventsList(),
-              ],
-            ),
+    return CustomScrollView(
+      slivers: [
+        _buildSliverAppBar(),
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              _buildFilters(),
+              _buildEventsList(),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -303,6 +375,7 @@ class _EventBrowseState extends State<EventBrowse> {
       ),
     );
   }
+
 }
 
 class EventDetailsSheet extends StatelessWidget {
