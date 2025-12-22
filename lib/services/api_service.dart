@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   static const String baseUrl =
-      'http://localhost:8000/api'; // Laravel backend URL
+      'https://metron.sudsudgroup.com/api'; // Laravel backend URL
   final _storage = FlutterSecureStorage();
 
   Future<String?> getToken() async {
@@ -42,8 +42,12 @@ class ApiService {
       headers: headers,
       body: json.encode(data),
     );
+    print('API Response status: ${response.statusCode}'); // Debug print
+    print('API Response body: ${response.body}'); // Debug print
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return json.decode(response.body);
+      final decodedResponse = json.decode(response.body);
+      print('Decoded response: $decodedResponse'); // Debug print
+      return decodedResponse;
     } else {
       throw Exception('Failed to post data: ${response.statusCode}');
     }

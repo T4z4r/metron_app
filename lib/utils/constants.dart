@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const String apiBaseUrl = "https://metron.sudsudgroup.com/api";
+  static const String apiBaseUrl = "http://metron.sudsudgroup.com/api";
 
   // Modern App Colors
   static const Color primaryColor = Color(0xFF6366F1);

@@ -13,13 +13,24 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiService.post('/auth/register',
           {'name': name, 'phone': phone, 'password': password, 'role': role});
+      print('Register response: $response'); // Debug print
       final token = response['token'];
       await _apiService.setToken(token);
-      _currentUser = User.fromJson(response['user']);
+      
+      // Handle both possible response structures
+      Map<String, dynamic> userData;
+      if (response.containsKey('user')) {
+        userData = response['user'];
+      } else {
+        // If user data is directly in response, use it directly
+        userData = response;
+      }
+      
+      _currentUser = User.fromJson(userData);
       notifyListeners();
     } catch (e) {
       print(e);
-      throw Exception('Registration failed');
+      throw Exception('Registration failed: $e');
     }
   }
 
@@ -27,12 +38,24 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiService
           .post('/auth/login', {'phone': phone, 'password': password});
+      print('Login response: $response'); // Debug print
       final token = response['token'];
       await _apiService.setToken(token);
-      _currentUser = User.fromJson(response['user']);
+      
+      // Handle both possible response structures
+      Map<String, dynamic> userData;
+      if (response.containsKey('user')) {
+        userData = response['user'];
+      } else {
+        // If user data is directly in response, use it directly
+        userData = response;
+      }
+      
+      _currentUser = User.fromJson(userData);
       notifyListeners();
     } catch (e) {
-      throw Exception('Login failed');
+      print('Login error: $e'); // Debug print
+      throw Exception('Login failed: $e');
     }
   }
 

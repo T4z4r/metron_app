@@ -21,21 +21,24 @@ class User {
     this.isVerified = '0', // Default not verified
   });
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'],
-        name: json['name'],
-        email: json['email'] ?? '', // Make email optional as it's not in Postman
-        emailVerifiedAt: json['email_verified_at'],
-        createdAt: json['created_at'] != null 
-            ? DateTime.parse(json['created_at']) 
-            : null,
-        updatedAt: json['updated_at'] != null 
-            ? DateTime.parse(json['updated_at']) 
-            : null,
-        phone: json['phone'],
-        role: json['role'] ?? 'attendant', // Default role
-        isVerified: json['is_verified'] ?? '0',
-      );
+  factory User.fromJson(Map<String, dynamic> json) {
+    print('Parsing user JSON: $json'); // Debug print
+    return User(
+      id: json['id'],
+      name: json['name'],
+      email: json['email'] ?? '', // Make email optional as it's not in Postman
+      emailVerifiedAt: json['email_verified_at'],
+      createdAt: json['created_at'] != null 
+          ? DateTime.parse(json['created_at']) 
+          : null,
+      updatedAt: json['updated_at'] != null 
+          ? DateTime.parse(json['updated_at']) 
+          : null,
+      phone: json['phone'],
+      role: json['role'] ?? 'attendant', // Default role
+      isVerified: json['is_verified'] ?? '0',
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
