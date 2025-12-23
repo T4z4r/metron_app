@@ -21,13 +21,7 @@ class EventProvider extends ChangeNotifier {
 
   Future<void> createEvent(Event event) async {
     try {
-      final data = await _apiService.post('/organizer/events', {
-        'title': event.title,
-        'description': event.description,
-        'visibility': event.visibility,
-        'start_date': event.startDate.toIso8601String(),
-        'end_date': event.endDate.toIso8601String(),
-      });
+      final data = await _apiService.post('/organizer/events', event.toJson());
       if (data['data'] == null) {
         throw Exception(data['message'] ?? 'Failed to create event');
       }

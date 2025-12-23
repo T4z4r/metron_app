@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Event {
   int? id;
   String title;
@@ -24,11 +26,11 @@ class Event {
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        if (id != null) 'id': id,
         'title': title,
         'description': description,
         'visibility': visibility,
-        'start_date': startDate.toIso8601String(),
-        'end_date': endDate.toIso8601String(),
+        'start_date': DateFormat('yyyy-MM-dd HH:mm:ss').format(startDate),
+        'end_date': DateFormat('yyyy-MM-dd HH:mm:ss').format(endDate),
       };
 }
