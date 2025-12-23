@@ -426,9 +426,7 @@ class _EventListContentState extends State<EventListContent>
         List<Event> filteredEvents = eventProvider.events.where((event) {
           bool matchesSearch = _searchQuery.isEmpty ||
               event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              event.description
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase());
+              (event.description?.toLowerCase() ?? '').contains(_searchQuery.toLowerCase());
 
           bool matchesFilter = true;
           if (_selectedFilter == 'Public') {
@@ -576,7 +574,7 @@ class _EventListContentState extends State<EventListContent>
                       ),
                       SizedBox(height: Constants.spacingXS),
                       Text(
-                        event.description,
+                        event.description ?? 'No description',
                         style: Constants.bodySmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

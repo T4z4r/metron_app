@@ -15,13 +15,14 @@ class _CreateEventState extends State<CreateEvent> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   String _visibility = 'public';
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(Duration(hours: 2));
   TimeOfDay _startTime = TimeOfDay.now();
-  TimeOfDay _endTime = TimeOfDay(hour: TimeOfDay.now().hour + 2, minute: TimeOfDay.now().minute);
-  
+  TimeOfDay _endTime =
+      TimeOfDay(hour: TimeOfDay.now().hour + 2, minute: TimeOfDay.now().minute);
+
   bool _isLoading = false;
   bool _isDraft = false;
 
@@ -57,7 +58,8 @@ class _CreateEventState extends State<CreateEvent> {
             selectedTime.hour,
             selectedTime.minute,
           );
-          _endTime = TimeOfDay(hour: selectedTime.hour + 2, minute: selectedTime.minute);
+          _endTime = TimeOfDay(
+              hour: selectedTime.hour + 2, minute: selectedTime.minute);
           _endDate = _startDate.add(Duration(hours: 2));
         });
       }
@@ -100,7 +102,9 @@ class _CreateEventState extends State<CreateEvent> {
     try {
       Event newEvent = Event(
         title: _titleController.text.trim(),
-        description: _descriptionController.text.trim(),
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
         visibility: _visibility,
         startDate: _startDate,
         endDate: _endDate,
@@ -112,7 +116,9 @@ class _CreateEventState extends State<CreateEvent> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isDraft ? 'Event saved as draft!' : 'Event created successfully!'),
+            content: Text(_isDraft
+                ? 'Event saved as draft!'
+                : 'Event created successfully!'),
             backgroundColor: Constants.successColor,
           ),
         );
@@ -136,9 +142,12 @@ class _CreateEventState extends State<CreateEvent> {
 
   String _formatDateTime(DateTime date, TimeOfDay time) {
     final now = DateTime.now();
-    final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-    
-    if (dateTime.year == now.year && dateTime.month == now.month && dateTime.day == now.day) {
+    final dateTime =
+        DateTime(date.year, date.month, date.day, time.hour, time.minute);
+
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day) {
       return 'Today at ${time.format(context)}';
     } else {
       return '${date.day}/${date.month}/${date.year} at ${time.format(context)}';
@@ -230,18 +239,17 @@ class _CreateEventState extends State<CreateEvent> {
           ),
           SizedBox(height: Constants.spacingM),
           CommonTextField(
-            label: 'Description *',
-            hint: 'Describe your event in detail',
+            label: 'Description',
+            hint: 'Describe your event in detail (optional)',
             controller: _descriptionController,
             prefixIcon: Icon(Icons.description),
             maxLines: 4,
             maxLength: 500,
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Please enter a description';
-              }
-              if (value.trim().length < 10) {
-                return 'Description must be at least 10 characters';
+              if (value != null &&
+                  value.trim().isNotEmpty &&
+                  value.trim().length < 10) {
+                return 'Description must be at least 10 characters if provided';
               }
               return null;
             },
@@ -250,12 +258,12 @@ class _CreateEventState extends State<CreateEvent> {
           CommonDropdownField<String>(
             label: 'Visibility *',
             hint: 'Select visibility',
-            items: _visibilityOptions.map((option) => 
-              DropdownMenuItem(
-                value: option,
-                child: Text(option.toUpperCase()),
-              )
-            ).toList(),
+            items: _visibilityOptions
+                .map((option) => DropdownMenuItem(
+                      value: option,
+                      child: Text(option.toUpperCase()),
+                    ))
+                .toList(),
             value: _visibility,
             onChanged: (value) {
               setState(() {
@@ -311,7 +319,8 @@ class _CreateEventState extends State<CreateEvent> {
     );
   }
 
-  Widget _buildDateTimeSelector(String label, String value, IconData icon, VoidCallback onTap) {
+  Widget _buildDateTimeSelector(
+      String label, String value, IconData icon, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -351,10 +360,12 @@ class _CreateEventState extends State<CreateEvent> {
       children: [
         Expanded(
           child: OutlinedButton(
-            onPressed: _isLoading ? null : () {
-              setState(() => _isDraft = true);
-              _handleSubmit();
-            },
+            onPressed: _isLoading
+                ? null
+                : () {
+                    setState(() => _isDraft = true);
+                    _handleSubmit();
+                  },
             style: OutlinedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: Constants.spacingM),
             ),
@@ -365,23 +376,25 @@ class _CreateEventState extends State<CreateEvent> {
         Expanded(
           flex: 2,
           child: ElevatedButton(
-            onPressed: _isLoading ? null : () {
-              setState(() => _isDraft = false);
-              _handleSubmit();
-            },
+            onPressed: _isLoading
+                ? null
+                : () {
+                    setState(() => _isDraft = false);
+                    _handleSubmit();
+                  },
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(vertical: Constants.spacingM),
             ),
-            child: _isLoading 
-              ? SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
-              : Text('Create Event'),
+            child: _isLoading
+                ? SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : Text('Create Event'),
           ),
         ),
       ],
@@ -405,7 +418,7 @@ class _CreateEventState extends State<CreateEvent> {
             Text('• Choose appropriate visibility'),
             SizedBox(height: Constants.spacingS),
             Text(
-              'Note: Required fields are marked with *',
+              'Note: Required fields are marked with * (Description is optional)',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ],

@@ -266,9 +266,7 @@ class _EventBrowseContentState extends State<EventBrowseContent> {
         List<Event> filteredEvents = eventProvider.events.where((event) {
           bool matchesSearch = _searchQuery.isEmpty ||
               event.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              event.description
-                  .toLowerCase()
-                  .contains(_searchQuery.toLowerCase());
+              (event.description?.toLowerCase() ?? '').contains(_searchQuery.toLowerCase());
 
           bool matchesFilter = true;
           if (_selectedFilter == 'Public') {
@@ -312,7 +310,7 @@ class _EventBrowseContentState extends State<EventBrowseContent> {
                     padding: EdgeInsets.only(bottom: Constants.spacingM),
                     child: EventCard(
                       title: event.title,
-                      description: event.description,
+                      description: event.description ?? '',
                       date: _formatEventDate(event.startDate),
                       location:
                           'TBD', // You can add location to your Event model
@@ -434,7 +432,7 @@ class EventDetailsSheet extends StatelessWidget {
             ),
             SizedBox(height: Constants.spacingS),
             Text(
-              event.description,
+              event.description ?? 'No description available',
               style: Constants.bodyMedium,
             ),
             SizedBox(height: Constants.spacingL),

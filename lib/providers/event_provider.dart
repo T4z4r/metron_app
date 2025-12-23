@@ -28,10 +28,14 @@ class EventProvider extends ChangeNotifier {
         'start_date': event.startDate.toIso8601String(),
         'end_date': event.endDate.toIso8601String(),
       });
+      if (data['data'] == null) {
+        throw Exception(data['message'] ?? 'Failed to create event');
+      }
       final newEvent = Event.fromJson(data['data']);
       _events.add(newEvent);
       notifyListeners();
     } catch (e) {
+      print(e);
       throw Exception('Failed to create event');
     }
   }
